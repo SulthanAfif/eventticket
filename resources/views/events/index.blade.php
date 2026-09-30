@@ -88,55 +88,97 @@
                 @endif
             </div>
         @else
-            <!-- Banner Default Jika Belum Ada Banner dari Admin -->
-            <div class="relative w-full aspect-[21/9] sm:aspect-[24/9] md:aspect-[3/1] min-h-[220px] rounded-2xl md:rounded-3xl overflow-hidden shadow-md bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white flex items-center p-8 sm:p-12">
-                <div class="max-w-xl space-y-2 z-10">
-                    <span class="px-3 py-1 bg-white/10 border border-white/20 rounded-full text-xs font-semibold text-indigo-200">
-                        Event Favorit Indonesia
-                    </span>
-                    <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
-                        Temukan Event Seru & Beli Tiketnya Sekarang
+            <!-- Hero dari pengaturan admin (badge, headline, sub-headline, CTA) -->
+            <div class="relative w-full min-h-[240px] sm:min-h-[280px] rounded-2xl md:rounded-3xl overflow-hidden shadow-md bg-gradient-to-r from-indigo-900 via-indigo-800 to-purple-900 text-white flex items-center p-8 sm:p-12">
+                <div class="max-w-2xl space-y-3 z-10">
+                    @if(!empty($siteSettings['hero_badge']))
+                        <span class="inline-block px-3 py-1 bg-white/10 border border-white/20 rounded-full text-xs font-semibold text-indigo-200">
+                            {{ $siteSettings['hero_badge'] }}
+                        </span>
+                    @endif
+                    <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight whitespace-pre-line leading-tight">
+                        {{ $siteSettings['hero_title'] ?? 'Temukan event favoritmu' }}
                     </h1>
-                    <p class="text-xs sm:text-sm text-indigo-100">
-                        Tambahkan gambar banner beresolusi tinggi di menu Admin &rarr; Slide Banner.
-                    </p>
+                    @if(!empty($siteSettings['hero_description']))
+                        <p class="text-sm sm:text-base text-indigo-100 max-w-xl">
+                            {{ $siteSettings['hero_description'] }}
+                        </p>
+                    @endif
+                    <div class="pt-2">
+                        <a href="#events"
+                           class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-indigo-700 font-semibold text-sm rounded-xl shadow hover:bg-indigo-50 transition">
+                            {{ $siteSettings['hero_cta_text'] ?? 'Lihat Event' }}
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Teks hero dari pengaturan admin (selalu tampil di bawah slider jika ada banner gambar) --}}
+        @if(isset($banners) && $banners->isNotEmpty() && !empty($siteSettings['hero_title']))
+            <div class="mt-5 rounded-2xl bg-white border border-gray-100 shadow-sm px-6 py-5 sm:px-8 sm:py-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="space-y-1.5 max-w-2xl">
+                        @if(!empty($siteSettings['hero_badge']))
+                            <span class="inline-block text-[11px] font-semibold uppercase tracking-wide text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                                {{ $siteSettings['hero_badge'] }}
+                            </span>
+                        @endif
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 whitespace-pre-line leading-snug">
+                            {{ $siteSettings['hero_title'] }}
+                        </h1>
+                        @if(!empty($siteSettings['hero_description']))
+                            <p class="text-sm text-gray-500">{{ $siteSettings['hero_description'] }}</p>
+                        @endif
+                    </div>
+                    <a href="#events"
+                       class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold text-sm rounded-xl shadow-sm hover:bg-indigo-700 transition shrink-0">
+                        {{ $siteSettings['hero_cta_text'] ?? 'Lihat Event' }}
+                    </a>
                 </div>
             </div>
         @endif
     </div>
 
-    <!-- 2. SEARCH & KATEGORI CEPAT (Ala Kiostix & Eratix) -->
+    <!-- 2. SEARCH & KATEGORI CEPAT -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
 
-            <!-- Input Pencarian -->
-            <div class="relative w-full md:max-w-md">
-                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <form method="GET" action="{{ route('events.index') }}" class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                @if(!empty($categorySlug))
+                    <input type="hidden" name="category" value="{{ $categorySlug }}">
+                @endif
+                <div class="relative w-full md:max-w-md flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                    <input type="text"
+                           name="q"
+                           value="{{ $search ?? '' }}"
+                           placeholder="Cari event, konser, artis, atau venue..."
+                           class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 transition">
                 </div>
-                <input type="text"
-                       id="searchEvent"
-                       placeholder="Cari event, konser, artis, atau venue..."
-                       class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 bg-gray-50/50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 transition">
-            </div>
+                <button type="submit"
+                        class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition whitespace-nowrap">
+                    Cari
+                </button>
+            </form>
 
-            <!-- Kategori Chips / Pills -->
-            <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 text-xs font-medium no-scrollbar">
-                <button class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-semibold whitespace-nowrap shadow-sm">
+            {{-- Kategori dari database (bisa diklik) --}}
+            <div class="flex items-center gap-2 overflow-x-auto w-full pb-1 text-xs font-medium no-scrollbar">
+                <a href="{{ route('events.index', array_filter(['q' => $search ?? null])) }}#events"
+                   class="px-4 py-2 rounded-xl whitespace-nowrap transition
+                   {{ empty($categorySlug) ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'bg-gray-100 hover:bg-gray-200 text-gray-700' }}">
                     Semua
-                </button>
-                <button class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 whitespace-nowrap transition">
-                    🎵 Musik
-                </button>
-                <button class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 whitespace-nowrap transition">
-                    🎪 Festival
-                </button>
-                <button class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 whitespace-nowrap transition">
-                    💼 Workshop
-                </button>
-                <button class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 whitespace-nowrap transition">
-                    ⚽ Olahraga
-                </button>
+                </a>
+                @foreach(($categories ?? []) as $cat)
+                    <a href="{{ route('events.index', array_filter(['category' => $cat->slug, 'q' => $search ?? null])) }}#events"
+                       class="px-4 py-2 rounded-xl whitespace-nowrap transition
+                       {{ ($categorySlug ?? '') === $cat->slug ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'bg-gray-100 hover:bg-gray-200 text-gray-700' }}">
+                        {{ $cat->icon }} {{ $cat->name }}
+                    </a>
+                @endforeach
             </div>
         </div>
     </div>
@@ -160,28 +202,6 @@
                 {{ $events->count() }} Event Aktif
             </span>
         </div>
-
-        {{-- Filter Kategori --}}
-        @if(isset($categories) && $categories->isNotEmpty())
-            <div class="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-1">
-                <a href="{{ route('events.index') }}#events"
-                   class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition
-                   {{ empty($categorySlug) ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:text-indigo-600' }}">
-                    Semua
-                </a>
-                @foreach($categories as $cat)
-                    <a href="{{ route('events.index', ['category' => $cat->slug]) }}#events"
-                       class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition whitespace-nowrap
-                       {{ ($categorySlug ?? '') === $cat->slug ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:text-indigo-600' }}">
-                        <span>{{ $cat->icon }}</span>
-                        {{ $cat->name }}
-                        @if($cat->published_events_count > 0)
-                            <span class="opacity-70">({{ $cat->published_events_count }})</span>
-                        @endif
-                    </a>
-                @endforeach
-            </div>
-        @endif
 
         @if($events->isEmpty())
             <div class="bg-white rounded-3xl border border-gray-100 p-16 text-center shadow-sm">

@@ -2,20 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Banner;
+use App\Models\Category;
 use App\Models\Event;
 use App\Models\SiteSetting;
-use App\Models\Banner;
+use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $events = Event::where('status', 'published')
-            ->with('ticketTypes')
-            ->latest()
+        $categorySlug = $request->query('category');
+        $search = trim((string) $request->query('q', ''));
+
+        $query = Event::where('status', 'published')
+            ->with(['ticketTypes', 'category'])
+            ->latest();
+
+        if ($categorySlug) {
+            $query->whereHas('category', fn ($q) => $q->where('slug', $categorySlug));
+        }
+
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('venue', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $events = $query->get();
+
+        $categories = Category::where('is_active', true)
+            ->withCount(['publishedEvents'])
+            ->orderBy('sort_order')
+            ->orderBy('name')
             ->get();
 
-         $banners = Banner::where('is_active', true)->latest()->get();
+        $banners = Banner::where('is_active', true)->latest()->get();
 
         $siteSettings = [
             'hero_badge' => SiteSetting::get('hero_badge', 'Platform tiket event Indonesia'),
@@ -27,7 +52,14 @@ class EventController extends Controller
             'support_whatsapp' => SiteSetting::get('support_whatsapp', ''),
         ];
 
-        return view('events.index', compact('events', 'siteSettings', 'banners'));
+        return view('events.index', compact(
+            'events',
+            'siteSettings',
+            'banners',
+            'categories',
+            'categorySlug',
+            'search'
+        ));
     }
 
     public function show(Event $event)
@@ -36,7 +68,10 @@ class EventController extends Controller
             abort(404);
         }
 
-        $event->load(['ticketTypes' => fn ($q) => $q->where('is_active', true)]);
+        $event->load([
+            'ticketTypes' => fn ($q) => $q->where('is_active', true),
+            'category',
+        ]);
 
         return view('events.show', compact('event'));
     }
