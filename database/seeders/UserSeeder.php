@@ -10,18 +10,22 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin EventTicket',
-            'email' => 'admin@eventticket.test',
-            'password' => Hash::make('password'),
-            'is_admin' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@eventticket.test'],
+            [
+                'name' => 'Admin EventTicket',
+                'password' => Hash::make('password'),
+                'is_admin' => true,
+            ]
+        );
 
-        User::create([
-            'name' => 'Customer Demo',
-            'email' => 'customer@example.com',
-            'password' => Hash::make('password'),
-            'is_admin' => false,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'customer@example.com'],
+            [
+                'name' => 'Customer Demo',
+                'password' => Hash::make('password'),
+                'is_admin' => false,
+            ]
+        );
     }
 }
